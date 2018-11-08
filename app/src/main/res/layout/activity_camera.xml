@@ -28,10 +28,15 @@
         android:text="SEND"
         android:id="@+id/send"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/display"
+        />
     <ImageView
         android:id="@+id/image"
         android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_height="100dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
