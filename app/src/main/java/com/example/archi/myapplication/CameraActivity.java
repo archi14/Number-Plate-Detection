@@ -16,7 +16,8 @@ import com.google.firebase.auth.FirebaseUser;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
     private FirebaseAuth firebaseAuth;
-    Button Photobtn,Database,Signout;
+    Button Photobtn,Database,Signout,send;
+    android.widget.EditText number;
     ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class CameraActivity extends AppCompatActivity {
         Database = findViewById(R.id.Database);
         Signout = findViewById(R.id.signout);
         firebaseAuth = FirebaseAuth.getInstance();
+        number = fvd
         Photobtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

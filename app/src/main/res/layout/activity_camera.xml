@@ -14,7 +14,20 @@
         android:layout_gravity="right"
         />
 
-
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="Vehicle Number"
+        android:layout_gravity="center"
+        android:id="@+id/number"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="SEND"
+        android:id="@+id/send"
+        />
     <ImageView
         android:id="@+id/image"
         android:layout_width="300dp"
