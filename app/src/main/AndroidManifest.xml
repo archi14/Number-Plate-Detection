@@ -25,6 +25,12 @@
         <activity android:name=".ResetPasswordActivity" />
         <activity android:name=".CameraActivity" />
         <activity android:name=".UserListActivity"/>
+        <receiver android:name=".SmsReciever">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
