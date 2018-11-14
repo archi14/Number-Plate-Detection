@@ -33,7 +33,7 @@ public class UserListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
-        getSupportActionBar().setTitle("");
+        //getSupportActionBar().setTitle("");
         initViews();
 
         initObjects();
@@ -57,7 +57,7 @@ public class UserListActivity extends AppCompatActivity {
                 for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren())
                 {
                     User user = dataSnapshot1.getValue(User.class);
-                    Log.d("userdetails", user.getEmail());
+                    //Log.d("userdetails", user.getEmail());
                     listUsers.add(user);
                 }
                 usersRecyclerAdapter = new UsersRecyclerAdapter(listUsers);
