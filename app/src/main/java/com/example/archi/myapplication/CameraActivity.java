@@ -94,23 +94,22 @@ public class CameraActivity extends AppCompatActivity {
         });
 
         Signout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
-                    @Override
-                    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
-                        if (user == null) {
-                            // user auth state is changed - user is null
-                            // launch login activity
-                            startActivity(new Intent(CameraActivity.this, LoginActivity.class));
-                            finish();
-                        }
-                    }
-                };
+                                       @Override
+                                       public void onClick(View v) {
+                                           firebaseAuth.signOut();
+                                           Log.d("awesome", "onClick: ");
+                                           FirebaseUser user = firebaseAuth.getCurrentUser();
+                                           Log.d("awesome", "2");
 
-            }
-        });
+                                           if (user == null) {
+                                               // user auth state is changed - user is null
+                                               // launch login activity
+                                               startActivity(new Intent(CameraActivity.this, LoginActivity.class));
+                                               finish();
+                                           }
+                                       }
+                                   });
+
         String msg;
         SmsReciever.bindListener(new SmsReciever.SmsListener() {
             @Override
