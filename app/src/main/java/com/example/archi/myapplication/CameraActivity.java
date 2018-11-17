@@ -5,6 +5,8 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import android.net.sip.SipSession;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -20,11 +22,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.io.File;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-
+import java.io.FileNotFoundException;
+import android.content.res.AssetManager;
+import java.io.InputStream;
+import java.io.OutputStream;
+import com.googlecode.tesseract.android.TessBaseAPI;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
     private FirebaseAuth firebaseAuth;
@@ -33,6 +38,9 @@ public class CameraActivity extends AppCompatActivity {
     ImageView imageView;
     SmsManager smsManager;
     TextView display;
+    Bitmap image;
+    private com.googlecode.tesseract.android.TessBaseAPI mTess;
+    String datapath = "";
     //SmsVerifyCatcher smsVerifyCatcher;
     //private SmsBroadcastReceiver smsBroadcastReciever;
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -48,26 +56,16 @@ public class CameraActivity extends AppCompatActivity {
         send = findViewById(R.id.send);
         smsManager = SmsManager.getDefault();
         display = findViewById(R.id.display);
-        /*SmsReciever.bindListener(new SmsReciever.SmsListener() {
-            @Override
-            public void messageReceived(String messageText) {
-                Log.d("TAG", "messageReceived: ");
-                display.setText(messageText);
-                //Toast.makeText(this,"recieved",Toast.LENGTH_LONG).show();
-            }
-        });*/
+        image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
+String language = "eng";
+
+datapath = getFilesDir()+ "/tesseract/";
+mTess = new com.googlecode.tesseract.android.TessBaseAPI();
+checkFile(new File(datapath+"tessdata/"));
+mTess.init(datapath, language);
+        runOCR();
 
 
-        /*smsVerifyCatcher = new SmsVerifyCatcher(this,new OnSmsCatchListener<String>() {
-            @Override
-            public void onSmsCatch(String message) {
-                Log.d("listenning", "onSmsCatch: ");
-                display.setText(message);
-            }
-        });*/
-
-        /*smsVerifyCatcher.setPhoneNumberFilter("VM-VAHAAN");
-        smsVerifyCatcher.setFilter("VAHAAN");*/
         Photobtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,7 +130,50 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
+    private void checkFile(File dir) {
+    if (!dir.exists()&& dir.mkdirs()){
+        copyFiles();
+    }
+    if(dir.exists()) {
+        String datafilepath = datapath+ "/tessdata/eng.traineddata";
+        File datafile = new File(datafilepath);
+        if (!datafile.exists()) {
+            copyFiles();
+        }
+    }
+}
 
+private void copyFiles() {
+    try {
+        String filepath = datapath + "/tessdata/eng.traineddata";
+        AssetManager assetManager = getAssets();
+        InputStream instream = assetManager.open("tessdata/eng.traineddata");
+        OutputStream outstream = new FileOutputStream(filepath);
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = instream.read(buffer)) != -1) {
+            outstream.write(buffer, 0, read);
+        }
+        outstream.flush();
+        outstream.close();
+        instream.close();
+        File file = new File(filepath);
+        if (!file.exists()) {
+            throw new FileNotFoundException();
+        }
+    } catch (java.io.FileNotFoundException e) {
+        e.printStackTrace();
+    } catch (java.io.IOException e) {
+        e.printStackTrace();
+    }
+}
+public void runOCR(){
+    String OCRresult = null;
+    mTess.setImage(image);
+    OCRresult = mTess.getUTF8Text();
+    TextView tv_OCR_Result =  findViewById(R.id.tv_OCR_Result);
+    tv_OCR_Result.setText(OCRresult);
+}
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
