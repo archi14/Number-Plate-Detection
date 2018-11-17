@@ -27,7 +27,7 @@ public class VehicleListAdapter extends RecyclerView.Adapter<VehicleListAdapter.
         Vehicle vehicle = arrayList.get(position);
         holder.VehicleNum.setText(vehicle.getVehicleNum());
         holder.Owner.setText(vehicle.getOwner());
-        holder.Owner.setText(vehicle.getVehicle());
+        holder.Vehicle.setText(vehicle.getVehicle());
 
     }
 
