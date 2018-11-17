@@ -29,6 +29,8 @@ import java.io.FileNotFoundException;
 import android.content.res.AssetManager;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+
 import com.googlecode.tesseract.android.TessBaseAPI;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
@@ -39,6 +41,7 @@ public class CameraActivity extends AppCompatActivity {
     SmsManager smsManager;
     TextView display;
     Bitmap image;
+    public ArrayList<Vehicle> arrayList;
     private com.googlecode.tesseract.android.TessBaseAPI mTess;
     String datapath = "";
     //SmsVerifyCatcher smsVerifyCatcher;
@@ -56,6 +59,7 @@ public class CameraActivity extends AppCompatActivity {
         send = findViewById(R.id.send);
         smsManager = SmsManager.getDefault();
         display = findViewById(R.id.display);
+        arrayList = new ArrayList<>();
         image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
 String language = "eng";
 
@@ -87,7 +91,9 @@ mTess.init(datapath, language);
         Database.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(CameraActivity.this,VehicleListActivity.class);
+                intent.putExtra("mylist",arrayList);
+                startActivity(intent);
             }
         });
 
@@ -111,9 +117,10 @@ mTess.init(datapath, language);
         String msg;
         SmsReciever.bindListener(new SmsReciever.SmsListener() {
             @Override
-            public void messageReceived(String messageText) {
-                Toast.makeText(CameraActivity.this, messageText, Toast.LENGTH_SHORT).show();
-                display.setText(messageText);
+            public void messageReceived(Vehicle vehicle) {
+                //Toast.makeText(CameraActivity.this, messageText, Toast.LENGTH_SHORT).show();
+                arrayList.add(vehicle);
+                display.setText(vehicle.getOwner());
 
             }
         });

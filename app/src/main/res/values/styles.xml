@@ -9,4 +9,8 @@
         <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
     </style>
 
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>
