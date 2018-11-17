@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.googlecode.tesseract.android.TessBaseAPI;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
@@ -38,6 +40,7 @@ public class CameraActivity extends AppCompatActivity {
     Button Photobtn,Database,Signout,send;
     android.widget.EditText number;
     ImageView imageView;
+    DatabaseReference mref;
     SmsManager smsManager;
     TextView display;
     Bitmap image;
@@ -57,6 +60,7 @@ public class CameraActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         number = findViewById(R.id.number);
         send = findViewById(R.id.send);
+        mref = FirebaseDatabase.getInstance().getReference().child("VehicleInfo");
         smsManager = SmsManager.getDefault();
         display = findViewById(R.id.display);
         arrayList = new ArrayList<>();
@@ -120,6 +124,7 @@ mTess.init(datapath, language);
             public void messageReceived(Vehicle vehicle) {
                 //Toast.makeText(CameraActivity.this, messageText, Toast.LENGTH_SHORT).show();
                 arrayList.add(vehicle);
+                mref.push().setValue(vehicle);
                 display.setText(vehicle.getOwner());
 
             }
