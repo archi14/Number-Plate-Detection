@@ -10,6 +10,10 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.sql.Array;
+import java.util.Arrays;
+
+
 public class SmsReciever extends BroadcastReceiver {
     private static SmsListener mListener;
     public void onReceive(Context context, Intent intent) {
@@ -32,10 +36,23 @@ public class SmsReciever extends BroadcastReceiver {
             }
 
         Log.d("message", body);
-        mListener.messageReceived(body);
+        //String title = body.substringBetween();
+        String [] array = body.split(":?\\n");
+        //String [] arr =
+        /*Log.d("array", array[1]);
+        Log.d("array1", array[2]);
+        Log.d("array2", array[3]);
+        Log.d("array3", array[0]);*/
+
+        Vehicle vehicle = new Vehicle();
+        vehicle.setOwner(array[1]);
+        vehicle.setVehicleNum(array[0]);
+        vehicle.setVehicle(array[2]);
+
+        mListener.messageReceived(vehicle);
         }
     public interface SmsListener {
-        public void messageReceived(String messageText);
+        public void messageReceived(Vehicle vehicle);
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static void bindListener(SmsListener listener) {
