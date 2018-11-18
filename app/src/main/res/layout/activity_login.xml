@@ -13,7 +13,8 @@
         android:background="@color/colorPrimary"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="@dimen/activity_horizontal_margin">
+        android:padding="@dimen/activity_horizontal_margin"
+        >
 
 
         <ImageView
@@ -21,7 +22,7 @@
             android:layout_height="@dimen/logo_w_h"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="30dp"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/ic_car" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -34,8 +35,8 @@
                 android:layout_marginBottom="10dp"
                 android:hint="@string/hint_email"
                 android:inputType="textEmailAddress"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:textColor="@color/textColor"
+                android:textColorHint="@color/textColor" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -49,8 +50,8 @@
                 android:layout_marginBottom="10dp"
                 android:hint="@string/hint_password"
                 android:inputType="textPassword"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:textColor="@color/textColor"
+                android:textColorHint="@color/textColor" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Login Button -->
@@ -60,31 +61,32 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
-            android:background="@color/colorAccent"
+            android:background="@color/btn_login_bg"
             android:text="@string/btn_login"
-            android:textColor="@android:color/black" />
+
+            android:textColor="@color/textColor" />
 
         <Button
             android:id="@+id/btn_reset_password"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
+            android:layout_marginTop="25dip"
             android:background="@null"
             android:text="@string/btn_forgot_password"
             android:textAllCaps="false"
-            android:textColor="@color/colorAccent" />
+            android:textSize="15sp"
+            android:textColor="@color/textColor" />
 
-        <!-- Link to Login Screen -->
 
         <Button
             android:id="@+id/btn_signup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
+            android:layout_marginTop="15dip"
             android:background="@null"
-            android:text="@string/btn_link_to_register"
+            android:text="Not A Member! Click to Register"
             android:textAllCaps="false"
-            android:textColor="@color/white"
+            android:textColor="@color/textColor"
             android:textSize="15dp" />
     </LinearLayout>
 

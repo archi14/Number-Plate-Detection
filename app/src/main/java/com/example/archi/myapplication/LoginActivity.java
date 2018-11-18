@@ -1,8 +1,13 @@
 package com.example.archi.myapplication;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,17 +21,23 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private ProgressBar progressBar;
     private Button btnSignup, btnLogin, btnReset;
+    private static final int MY_PERMISSIONS_REQUEST_ACCOUNTS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (Build.VERSION.SDK_INT > 23) {
+            checkAndRequestPermissions();
+        }
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
@@ -116,5 +127,65 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private boolean checkAndRequestPermissions() {
+        int permissionCAMERA = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.INTERNET);
+
+
+        int readphonestate = ContextCompat.checkSelfPermission(this,
+
+
+                Manifest.permission.READ_PHONE_STATE);
+        int sendsms = ContextCompat.checkSelfPermission(this,
+
+
+                Manifest.permission.SEND_SMS);
+        int recievesms = ContextCompat.checkSelfPermission(this,
+
+
+                Manifest.permission.RECEIVE_SMS);
+        int readsms = ContextCompat.checkSelfPermission(this,
+
+
+                Manifest.permission.READ_SMS);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (readsms != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_SMS);
+        }
+        if (permissionCAMERA != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.INTERNET);
+        }if (recievesms != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.RECEIVE_SMS);
+        }if (sendsms != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.SEND_SMS);
+        }if (readphonestate != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this,
+
+
+                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MY_PERMISSIONS_REQUEST_ACCOUNTS);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCOUNTS:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //Permission Granted Successfully. Write working code here.
+                } else {
+                    //You did not accept the request can not use the functionality.
+                }
+                break;
+        }
     }
 }
