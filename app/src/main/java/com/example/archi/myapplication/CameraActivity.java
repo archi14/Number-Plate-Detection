@@ -25,6 +25,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +47,8 @@ public class CameraActivity extends AppCompatActivity {
     Button Photobtn,Database,Signout,send;
     android.widget.EditText number;
     ImageView imageView;
+    EditText editNumber;
+    TextView tv_OCR_Result;
     DatabaseReference mref;
     SmsManager smsManager;
     Uri OutputfileUri;
@@ -71,6 +74,7 @@ public class CameraActivity extends AppCompatActivity {
         send = findViewById(R.id.send);
         mref = FirebaseDatabase.getInstance().getReference().child("VehicleInfo");
         smsManager = SmsManager.getDefault();
+        tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
         display = findViewById(R.id.display);
         arrayList = new ArrayList<>();
          //image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
@@ -102,7 +106,17 @@ mTess.init(datapath, language);
                 startActivity(intent);
             }
         });
-
+        tv_OCR_Result.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                String ocroutput = tv_OCR_Result.getText().toString();
+                tv_OCR_Result.setVisibility(View.INVISIBLE);
+                editNumber = findViewById(R.id.editnumber);
+                editNumber.setVisibility(View.VISIBLE);
+                editNumber.setText(ocroutput);
+                return false;
+            }
+        });
         Signout.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
@@ -222,7 +236,6 @@ public void runOCR() {
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
-        TextView tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
         tv_OCR_Result.setText(OCRresult);
     }/*catch (IOException e) {
         e.printStackTrace();
