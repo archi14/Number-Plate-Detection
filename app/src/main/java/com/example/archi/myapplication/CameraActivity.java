@@ -58,7 +58,7 @@ public class CameraActivity extends AppCompatActivity {
     DatabaseReference mref;
     SmsManager smsManager;
     Uri OutputfileUri;
-    TextView display;
+    //TextView display;
     Bitmap image;
     ProgressBar progressBar;
     public ArrayList<Vehicle> arrayList;
@@ -82,7 +82,7 @@ public class CameraActivity extends AppCompatActivity {
         mref = FirebaseDatabase.getInstance().getReference().child("VehicleInfo");
         smsManager = SmsManager.getDefault();
         tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
-        display = findViewById(R.id.display);
+        //display = findViewById(R.id.display);
         progressBar = findViewById(R.id.progressBar);
 
 datapath = getFilesDir()+ "/tesseract/";

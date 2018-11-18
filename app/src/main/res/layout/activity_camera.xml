@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/colorPrimary1"
     tools:context=".CameraActivity">
 
     <ProgressBar
@@ -23,59 +24,73 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Signout"
+        android:background="@color/textColor1"
         android:layout_gravity="right"
         />
 
     <TextView
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:id="@+id/tv_OCR_Result"
         android:textAlignment="center"
         android:hint="Long press to enter manually"
+        android:textColorHint="#ffff"
+        android:textSize="20sp"
         />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:id="@+id/number"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/textColor1"
         />
-     <TextView
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:id="@+id/display"
-         />
-    <ImageView
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="CHECK"
+            android:id="@+id/send"
+            android:background="@color/textColor1"
+            android:layout_marginBottom="8dp"
+            />
+
+
+
+        <ImageView
         android:id="@+id/image"
+        android:layout_marginTop="10dp"
         android:layout_width="300dp"
-        android:layout_height="80dp"
+        android:layout_height="250dp"
         android:layout_gravity="center"
         android:contentDescription="Awesome"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="CHECK"
-        android:id="@+id/send"
+        android:layout_marginBottom="20dp"
         />
 
-
     <Button
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:id="@+id/Photobtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        android:text="Take photo" />
+        android:text="Take photo"
+        android:background="@color/textColor1"
+        />
 
     <Button
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:id="@+id/Database"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="Visit Database" />
+        android:text="Visit Database"
+        android:background="@color/textColor1"
+        />
 
     </LinearLayout>
 </LinearLayout>
