@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
@@ -45,15 +46,16 @@ public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
     private FirebaseAuth firebaseAuth;
     Button Photobtn,Database,Signout,send;
-    android.widget.EditText number;
+    EditText number;
     ImageView imageView;
-    EditText editNumber;
+    //EditText editNumber;
     TextView tv_OCR_Result;
     DatabaseReference mref;
     SmsManager smsManager;
     Uri OutputfileUri;
     TextView display;
     Bitmap image;
+    ProgressBar progressBar;
     public ArrayList<Vehicle> arrayList;
     private TessBaseAPI mTess;
     public static final String language = "eng";
@@ -77,6 +79,7 @@ public class CameraActivity extends AppCompatActivity {
         tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
         display = findViewById(R.id.display);
         arrayList = new ArrayList<>();
+        progressBar = findViewById(R.id.progressBar);
          //image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
 
 datapath = getFilesDir()+ "/tesseract/";
@@ -92,8 +95,9 @@ mTess.init(datapath, language);
             public void onClick(View view) {
                 String text ="VAHAN "+number.getText().toString();
                 smsManager.sendTextMessage("7738299899",null,text,null,null);
-                Log.d("Camera", "Sent");
+                //Log.d("Camera", "Sent");
                 //Toast.makeText(this,"sent",Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.VISIBLE);
 
             }
         });
@@ -110,10 +114,10 @@ mTess.init(datapath, language);
             @Override
             public boolean onLongClick(View view) {
                 String ocroutput = tv_OCR_Result.getText().toString();
-                tv_OCR_Result.setVisibility(View.INVISIBLE);
-                editNumber = findViewById(R.id.editnumber);
-                editNumber.setVisibility(View.VISIBLE);
-                editNumber.setText(ocroutput);
+                tv_OCR_Result.setVisibility(View.GONE);
+                number = findViewById(R.id.number);
+                number.setVisibility(View.VISIBLE);
+                number.setText(ocroutput);
                 return false;
             }
         });
@@ -140,7 +144,9 @@ mTess.init(datapath, language);
             public void messageReceived(Vehicle vehicle) {
                 //Toast.makeText(CameraActivity.this, messageText, Toast.LENGTH_SHORT).show();
                 arrayList.add(vehicle);
-                mref.push().setValue(vehicle);
+                String [] Number = vehicle.getVehicleNum().split(" ");
+                mref.child(Number[0]).setValue(vehicle);
+                progressBar.setVisibility(View.GONE);
                 display.setText(vehicle.getOwner());
 
             }
@@ -155,7 +161,16 @@ mTess.init(datapath, language);
                 }
             }
         });
-
+        number.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                String text = number.getText().toString();
+                number.setVisibility(View.GONE);
+                tv_OCR_Result.setVisibility(View.VISIBLE);
+                tv_OCR_Result.setText(text);
+                return false;
+            }
+        });
     }
 
     private void checkFile(File dir) {
