@@ -1,10 +1,16 @@
 package com.example.archi.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import android.net.sip.SipSession;
@@ -42,10 +48,13 @@ public class CameraActivity extends AppCompatActivity {
     ImageView imageView;
     DatabaseReference mref;
     SmsManager smsManager;
+    Uri OutputfileUri;
     TextView display;
     Bitmap image;
     public ArrayList<Vehicle> arrayList;
-    private com.googlecode.tesseract.android.TessBaseAPI mTess;
+    private TessBaseAPI mTess;
+    public static final String language = "eng";
+
     String datapath = "";
     //SmsVerifyCatcher smsVerifyCatcher;
     //private SmsBroadcastReceiver smsBroadcastReciever;
@@ -64,22 +73,15 @@ public class CameraActivity extends AppCompatActivity {
         smsManager = SmsManager.getDefault();
         display = findViewById(R.id.display);
         arrayList = new ArrayList<>();
-        image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
-String language = "eng";
+         //image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
 
 datapath = getFilesDir()+ "/tesseract/";
 mTess = new com.googlecode.tesseract.android.TessBaseAPI();
 checkFile(new File(datapath+"tessdata/"));
 mTess.init(datapath, language);
-        runOCR();
 
 
-        Photobtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,21 +181,70 @@ private void copyFiles() {
         e.printStackTrace();
     }
 }
-public void runOCR(){
-    String OCRresult = null;
-    mTess.setImage(image);
-    OCRresult = mTess.getUTF8Text();
-    TextView tv_OCR_Result =  findViewById(R.id.tv_OCR_Result);
-    tv_OCR_Result.setText(OCRresult);
-}
+public void runOCR() {
+    /*try {
+        ExifInterface exif = new ExifInterface(imgUri.getPath());
+        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int rotate = 0;
+        switch (exifOrientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotate = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotate = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotate = 270;
+                break;
+        }
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 4;
+        options.inTargetDensity = 300;
+        Bitmap bitmap = BitmapFactory.decodeFile(imgUri.getPath(), options);
+        if (rotate != 0) {
+
+            // Getting width & height of the given image.
+            int w = bitmap.getWidth();
+            int h = bitmap.getHeight();
+
+            // Setting pre rotate
+            Matrix mtx = new Matrix();
+            mtx.preRotate(rotate);
+
+            // Rotating Bitmap
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, false);
+
+        }
+        // bitmap = toGrayscale(bitmap);
+
+        final Bitmap b = bitmap;*/
+        String OCRresult = null;
+        mTess.setImage(image);
+        OCRresult = mTess.getUTF8Text();
+        TextView tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
+        tv_OCR_Result.setText(OCRresult);
+    }/*catch (IOException e) {
+        e.printStackTrace();
+    }*/
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //OutputfileUri = data.getData();
+             image = (Bitmap) extras.get("data");
+             //OutputfileUri  = getImageUri(this,image);
             imageView = findViewById(R.id.image);
-            imageView.setImageBitmap(imageBitmap);
+            imageView.setImageBitmap(image);
+            runOCR();
         }
     }
 
+   /* public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }*/
 }
