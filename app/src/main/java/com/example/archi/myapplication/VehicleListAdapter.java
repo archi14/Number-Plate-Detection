@@ -28,6 +28,7 @@ public class VehicleListAdapter extends RecyclerView.Adapter<VehicleListAdapter.
         holder.VehicleNum.setText(vehicle.getVehicleNum());
         holder.Owner.setText(vehicle.getOwner());
         holder.Vehicle.setText(vehicle.getVehicle());
+        holder.Type.setText(vehicle.getType());
 
     }
 
@@ -37,13 +38,14 @@ public class VehicleListAdapter extends RecyclerView.Adapter<VehicleListAdapter.
     }
 
     public class VehicleViewHolder extends RecyclerView.ViewHolder {
-        TextView VehicleNum,Owner,Vehicle;
+        TextView VehicleNum,Owner,Vehicle,Type;
 
         public VehicleViewHolder(View itemView) {
             super(itemView);
             VehicleNum = itemView.findViewById(R.id.VehicleNum);
             Owner = itemView.findViewById(R.id.Owner);
             Vehicle = itemView.findViewById(R.id.Vehicle);
+            Type = itemView.findViewById(R.id.Type);
         }
     }
 }

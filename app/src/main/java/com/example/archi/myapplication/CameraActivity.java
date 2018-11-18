@@ -1,6 +1,8 @@
 package com.example.archi.myapplication;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -39,8 +41,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.googlecode.tesseract.android.TessBaseAPI;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
@@ -78,9 +83,7 @@ public class CameraActivity extends AppCompatActivity {
         smsManager = SmsManager.getDefault();
         tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
         display = findViewById(R.id.display);
-        arrayList = new ArrayList<>();
         progressBar = findViewById(R.id.progressBar);
-         //image = android.graphics.BitmapFactory.decodeResource(getResources(), R.drawable.test_image);
 
 datapath = getFilesDir()+ "/tesseract/";
 mTess = new com.googlecode.tesseract.android.TessBaseAPI();
@@ -141,13 +144,34 @@ mTess.init(datapath, language);
         String msg;
         SmsReciever.bindListener(new SmsReciever.SmsListener() {
             @Override
-            public void messageReceived(Vehicle vehicle) {
+            public void messageReceived(final Vehicle vehicle) {
                 //Toast.makeText(CameraActivity.this, messageText, Toast.LENGTH_SHORT).show();
-                arrayList.add(vehicle);
-                String [] Number = vehicle.getVehicleNum().split(" ");
-                mref.child(Number[0]).setValue(vehicle);
+                //arrayList.add(vehicle);
+                final String [] Number = vehicle.getVehicleNum().split(" ");
+                Log.d("awesomewesome", Number[0]);
+                final DatabaseReference vehicleRef = mref.child(Number[0]);
+                vehicleRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists())
+                        {
+                            setUpAlertDialog(1,vehicle,null);
+                        }else
+                        {
+
+
+                            setUpAlertDialog(0,vehicle,vehicleRef);
+                            //mref.child(Number[0]).setValue(vehicle);
+                            //display.setText(vehicle.getOwner());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
                 progressBar.setVisibility(View.GONE);
-                display.setText(vehicle.getOwner());
 
             }
         });
@@ -172,6 +196,83 @@ mTess.init(datapath, language);
             }
         });
     }
+
+    private void setUpAlertDialog(int i, final Vehicle vehicle, final DatabaseReference Vehicleref) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        switch (i)
+        {
+            case 0:
+                builder.setMessage("Vehicle number not found in Database, Add to:")
+                        .setCancelable(false)
+                        .setPositiveButton("Blacklist", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                vehicle.setType("Blacklist");
+                                Vehicleref.setValue(vehicle);
+                                dialog.cancel();
+
+                            }
+                        })
+                        .setNegativeButton("Whitelist", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        vehicle.setType("Whitelist");
+                        Vehicleref.setValue(vehicle);
+                        dialog.cancel();
+                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+
+            case 1:
+                builder.setMessage("Vehicle number already found in Database\n" +
+                        vehicle.getOwner()+vehicle.getVehicleNum()+vehicle.getVehicle())
+                        .setCancelable(false)
+                        /*.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                finish();
+                                Toast.makeText(getApplicationContext(),"you choose yes action for alertbox",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        */.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Action for 'NO' Button
+                        dialog.cancel();
+                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+
+        }
+
+         //builder.setMessage() .setTitle(R.string.dialog_title);
+
+        //Setting message manually and performing action on button click
+        /*builder.setMessage("Vehicle number already found in Database")
+                .setCancelable(false)
+                *//*.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                        Toast.makeText(getApplicationContext(),"you choose yes action for alertbox",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                *//*.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Action for 'NO' Button
+                        dialog.cancel();
+                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+        //Creating dialog box
+        AlertDialog alert = builder.create();
+        //Setting the title manually
+        alert.setTitle("AlertDialogExample");
+        alert.show();
+    }
+
 
     private void checkFile(File dir) {
     if (!dir.exists()&& dir.mkdirs()){
