@@ -198,7 +198,7 @@ mTess.init(datapath, language);
     }
 
     private void setUpAlertDialog(int i, final Vehicle vehicle, final DatabaseReference Vehicleref) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.AlertDialogTheme);
         switch (i)
         {
             case 0:
@@ -225,7 +225,7 @@ mTess.init(datapath, language);
 
             case 1:
                 builder.setMessage("Vehicle number already found in Database\n" +
-                        vehicle.getOwner()+vehicle.getVehicleNum()+vehicle.getVehicle())
+                        vehicle.getOwner()+"\n"+vehicle.getVehicleNum()+"\n"+vehicle.getVehicle())
                         .setCancelable(false)
                         /*.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -269,7 +269,7 @@ mTess.init(datapath, language);
         //Creating dialog box
         AlertDialog alert = builder.create();
         //Setting the title manually
-        alert.setTitle("AlertDialogExample");
+        alert.setTitle("INFORMATION");
         alert.show();
     }
 
