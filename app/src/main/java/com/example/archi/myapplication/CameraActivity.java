@@ -96,7 +96,15 @@ mTess.init(datapath, language);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String text ="VAHAN "+number.getText().toString();
+                String text;
+                if(number.getText().toString().isEmpty())
+                {
+                    text ="VAHAN "+tv_OCR_Result.getText().toString();
+                }else
+                {
+                    text ="VAHAN "+number.getText().toString();
+                }
+                Log.d("value", text);
                 smsManager.sendTextMessage("7738299899",null,text,null,null);
                 //Log.d("Camera", "Sent");
                 //Toast.makeText(this,"sent",Toast.LENGTH_LONG).show();
@@ -217,8 +225,8 @@ mTess.init(datapath, language);
                         vehicle.setType("Whitelist");
                         Vehicleref.setValue(vehicle);
                         dialog.cancel();
-                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
-                                Toast.LENGTH_SHORT).show();
+                        /*Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
+                                Toast.LENGTH_SHORT).show();*/
                     }
                 });
                 break;
@@ -238,8 +246,8 @@ mTess.init(datapath, language);
                     public void onClick(DialogInterface dialog, int id) {
                         //  Action for 'NO' Button
                         dialog.cancel();
-                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
-                                Toast.LENGTH_SHORT).show();
+                        /*Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
+                                Toast.LENGTH_SHORT).show();*/
                     }
                 });
                 break;
