@@ -7,7 +7,7 @@ The app for now has following features:
 
 Registration page: To register a new user of the app. The data is stored in Firebase database and Firebase authentication is used
 for authentication. Other than this user also has "forgot password" option, which asks for user's provided email and sends a reset
-link to the specified email.
+link to the specified email./ideaapp/
 
 
 Login Page: User can login to the app by providing their email and password. Firebase authentication is used.
