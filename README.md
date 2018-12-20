@@ -19,7 +19,7 @@ Main page: Has the database of the previously captured vehicles and also to capt
 after processing image the obtained number can be edited if there was any mistake in recognition else the number could be send to the government information portal(INDIA) for information retrieval.
 
 For Tesseract Api Use related info Refer to this link: https://stackoverflow.com/questions/7710123/how-can-i-use-tesseract-in-android
-<img src="inside.jpeg" width="200" height="400" align="center">   <img src="action.jpeg" width="200" height="400" align="center"> 
+<p align="center"><img src="inside.jpeg" width="200" height="400">   <img src="action.jpeg" width="200" height="400"></p> 
 
 <img src="login.jpeg" width="200" height="400" align="center">    <img src="signup.jpeg" width="200" height="400" align="center"> 
 
