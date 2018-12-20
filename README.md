@@ -14,6 +14,13 @@ Login Page: User can login to the app by providing their email and password. Fir
 
 UsersList Page: A particular email and password are provided to the admin that gives the admin access to Userlist page where admin 
 can see the list of all the registered users, their emails, names and passwords.
-For Tesseract Api Use related info Refer to this link:https://stackoverflow.com/questions/7710123/how-can-i-use-tesseract-in-android
 
+Main page: Has the database of the previously captured vehicles and also to capture new vehicle. 
+after processing image the obtained number can be edited if there was any mistake in recognition else the number could be send to the government information portal(INDIA) for information retrieval.
+
+For Tesseract Api Use related info Refer to this link: https://stackoverflow.com/questions/7710123/how-can-i-use-tesseract-in-android
+![](inside.jpeg)
+![](action.jpeg)
+![](signup.jpeg)
+![](login.jpeg)
 
