@@ -10,6 +10,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.Image;
+import android.media.MediaPlayer;
 import android.net.Uri;
 
 import java.io.ByteArrayOutputStream;
@@ -17,10 +19,12 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import android.net.sip.SipSession;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -52,19 +56,21 @@ public class CameraActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     Button Photobtn,Database,Signout,send;
     EditText number;
+    String Filename;
     ImageView imageView;
     //EditText editNumber;
     TextView tv_OCR_Result;
     DatabaseReference mref;
     SmsManager smsManager;
-    Uri OutputfileUri;
+    Uri OutputFileUri;
     //TextView display;
     Bitmap image;
     ProgressBar progressBar;
     public ArrayList<Vehicle> arrayList;
     private TessBaseAPI mTess;
     public static final String language = "eng";
-
+    String root,path;
+    File imageFile;
     String datapath = "";
     //SmsVerifyCatcher smsVerifyCatcher;
     //private SmsBroadcastReceiver smsBroadcastReciever;
@@ -85,11 +91,24 @@ public class CameraActivity extends AppCompatActivity {
         //display = findViewById(R.id.display);
         progressBar = findViewById(R.id.progressBar);
 
-datapath = getFilesDir()+ "/tesseract/";
-mTess = new com.googlecode.tesseract.android.TessBaseAPI();
-checkFile(new File(datapath+"tessdata/"));
-mTess.init(datapath, language);
+    datapath = getFilesDir()+ "/tesseract/";
+    mTess = new com.googlecode.tesseract.android.TessBaseAPI();
+    checkFile(new File(datapath+"tessdata/"));
+    mTess.init(datapath, language);
+    root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        Log.d("Awesome", root);
+    path = root+"/ScannedImages/Image/";
+    File file = new File(path);
 
+
+    if(!file.exists())
+    {
+        file.mkdirs();
+        Log.d("Awesome", "1");
+    }
+    Filename = "awesome.jpg";
+    imageFile = new File(path,Filename);
+        Log.d("Awesome", imageFile.toString());
 
 
 
@@ -187,7 +206,12 @@ mTess.init(datapath, language);
         Photobtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                 Uri outputFileUri = Uri.fromFile(imageFile);
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                Log.d("Awesome", outputFileUri.toString());
+                OutputFileUri = FileProvider.getUriForFile(getApplicationContext(),"com.example.archi.myapplication.fileprovider",imageFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,OutputFileUri);
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
@@ -366,17 +390,20 @@ public void runOCR() {
     }*/
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
+    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQUEST_IMAGE_CAPTURE || path == null)
+                return;
+            //Bundle extras = data.getExtras();
             //OutputfileUri = data.getData();
-             image = (Bitmap) extras.get("data");
+             //image = (Bitmap) extras.get("data");
+            //image = BitmapFactory.decodeFile(image);
              //OutputfileUri  = getImageUri(this,image);
             imageView = findViewById(R.id.image);
-            imageView.setImageBitmap(image);
+            //imageView.setImageBitmap(image);
+        imageView.setImageURI(OutputFileUri);
             runOCR();
-        }
-    }
+
+    }*/
 
    /* public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -384,4 +411,35 @@ public void runOCR() {
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }*/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try{
+            switch(requestCode){
+                case REQUEST_IMAGE_CAPTURE:{
+
+                    if(resultCode==RESULT_OK){
+                        File file = new File(path+Filename);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),Uri.fromFile(file));
+
+                        if(bitmap!=null)
+                        {
+                            imageView = findViewById(R.id.image);
+                            imageView.setImageBitmap(bitmap);
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
