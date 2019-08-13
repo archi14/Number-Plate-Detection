@@ -9,22 +9,20 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import android.net.sip.SipSession;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +31,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.io.FileNotFoundException;
@@ -46,7 +48,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.googlecode.tesseract.android.TessBaseAPI;
 public class CameraActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE=1;
     private FirebaseAuth firebaseAuth;
@@ -58,13 +59,18 @@ public class CameraActivity extends AppCompatActivity {
     DatabaseReference mref;
     SmsManager smsManager;
     Uri OutputfileUri;
+    private TextRecognizer detector;
     //TextView display;
+    private static final int PHOTO_REQUEST = 10;
+
     Bitmap image;
+    private Uri imageUri;
     ProgressBar progressBar;
     public ArrayList<Vehicle> arrayList;
-    private TessBaseAPI mTess;
+    //private TessBaseAPI mTess;
     public static final String language = "eng";
-
+    private static final String SAVED_INSTANCE_URI = "uri";
+    private static final String SAVED_INSTANCE_RESULT = "result";
     String datapath = "";
     //SmsVerifyCatcher smsVerifyCatcher;
     //private SmsBroadcastReceiver smsBroadcastReciever;
@@ -76,6 +82,7 @@ public class CameraActivity extends AppCompatActivity {
         Photobtn = findViewById(R.id.Photobtn);
         Database = findViewById(R.id.Database);
         Signout = findViewById(R.id.signout);
+        imageView  = findViewById(R.id.image);
         firebaseAuth = FirebaseAuth.getInstance();
         number = findViewById(R.id.number);
         send = findViewById(R.id.send);
@@ -84,11 +91,17 @@ public class CameraActivity extends AppCompatActivity {
         tv_OCR_Result = findViewById(R.id.tv_OCR_Result);
         //display = findViewById(R.id.display);
         progressBar = findViewById(R.id.progressBar);
-
+        detector = new TextRecognizer.Builder(getApplicationContext()).build();
+        if (savedInstanceState != null) {
+            imageUri = Uri.parse(savedInstanceState.getString(SAVED_INSTANCE_URI));
+            tv_OCR_Result.setText(savedInstanceState.getString(SAVED_INSTANCE_RESULT));
+        }
+/*
 datapath = getFilesDir()+ "/tesseract/";
 mTess = new com.googlecode.tesseract.android.TessBaseAPI();
 checkFile(new File(datapath+"tessdata/"));
 mTess.init(datapath, language);
+*/
 
 
 
@@ -187,10 +200,12 @@ mTess.init(datapath, language);
         Photobtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                takePicture();
+                /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
+                }*/
             }
         });
         number.setOnLongClickListener(new View.OnLongClickListener() {
@@ -205,6 +220,81 @@ mTess.init(datapath, language);
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (imageUri != null) {
+            outState.putString(SAVED_INSTANCE_URI, imageUri.toString());
+            outState.putString(SAVED_INSTANCE_RESULT, tv_OCR_Result.getText().toString());
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    private void takePicture() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photo = new File(Environment.getExternalStorageDirectory(), "picture.jpg");
+        imageUri = FileProvider.getUriForFile(CameraActivity.this,
+                BuildConfig.APPLICATION_ID + ".fileprovider", photo);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        //Log.d("here", imageUri.toString()+"adf");
+        startActivityForResult(intent, PHOTO_REQUEST);
+    }
+
+    private void launchMediaScanIntent() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(imageUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    private Bitmap decodeBitmapUri(Context ctx, Uri uri) throws FileNotFoundException {
+        int targetW = 600;
+        int targetH = 600;
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(ctx.getContentResolver().openInputStream(uri), null, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+
+        return BitmapFactory.decodeStream(ctx.getContentResolver()
+                .openInputStream(uri), null, bmOptions);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PHOTO_REQUEST && resultCode == RESULT_OK) {
+            //Log.d("here", "onActivityResult: ");
+            launchMediaScanIntent();
+            try {
+                Bitmap bitmap = decodeBitmapUri(this, imageUri);
+                if (detector.isOperational() && bitmap != null) {
+                    Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+                    SparseArray<TextBlock> textBlocks = detector.detect(frame);
+                    String words = "";
+                    for (int i = 0; i < textBlocks.size(); i++) {
+                        TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
+                        Log.d("here", textBlock.getValue());
+                        words+=textBlock.getValue()+"\n"+"\n";
+                    }
+                    if(textBlocks.size()!=0)
+                    {
+                        imageView.setImageBitmap(bitmap);
+                        tv_OCR_Result.setText(words);
+                    }else {
+                        tv_OCR_Result.setText("Failed to detect anything");
+                    }
+                } else {
+                    tv_OCR_Result.setText("Could not set up the detector!");
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to load Image", Toast.LENGTH_SHORT)
+                        .show();
+                Log.e("here", e.toString());
+            }
+        }
+    }
     private void setUpAlertDialog(int i, final Vehicle vehicle, final DatabaseReference Vehicleref) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.AlertDialogTheme);
         switch (i)
@@ -282,7 +372,7 @@ mTess.init(datapath, language);
     }
 
 
-    private void checkFile(File dir) {
+   /* private void checkFile(File dir) {
     if (!dir.exists()&& dir.mkdirs()){
         copyFiles();
     }
@@ -320,7 +410,7 @@ private void copyFiles() {
     }
 }
 public void runOCR() {
-    /*try {
+    *//*try {
         ExifInterface exif = new ExifInterface(imgUri.getPath());
         int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         int rotate = 0;
@@ -356,17 +446,17 @@ public void runOCR() {
         }
         // bitmap = toGrayscale(bitmap);
 
-        final Bitmap b = bitmap;*/
+        final Bitmap b = bitmap;*//*
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
         tv_OCR_Result.setText(OCRresult);
-    }/*catch (IOException e) {
+    }*//*catch (IOException e) {
         e.printStackTrace();
-    }*/
+    }*//*
 
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+*/
+    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             //OutputfileUri = data.getData();
@@ -376,7 +466,7 @@ public void runOCR() {
             imageView.setImageBitmap(image);
             runOCR();
         }
-    }
+    }*/
 
    /* public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
